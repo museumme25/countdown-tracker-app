@@ -18,6 +18,7 @@ export default function App() {
   const [calcDate1, setCalcDate1] = useState('');
   const [calcDate2, setCalcDate2] = useState('');
   const [calcResult, setCalcResult] = useState(null);
+  const [pricing, setPricing] = useState({ currency: 'USD', symbol: '$', price: '3.99' });
 
   const FREE_LIMIT = 5;
 
@@ -36,7 +37,6 @@ export default function App() {
     localStorage.setItem('countdowns', JSON.stringify(countdowns));
   }, [countdowns]);
 
-  // Load AdSense ads
   useEffect(() => {
     if (!isPremium) {
       try {
@@ -46,6 +46,28 @@ export default function App() {
       }
     }
   }, [isPremium, countdowns]);
+
+  useEffect(() => {
+    const detectCurrency = () => {
+      const locale = navigator.language || navigator.userLanguage;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      
+      if (locale.includes('en-GB') || timezone.includes('London') || timezone.includes('Europe/London')) {
+        return { currency: 'GBP', symbol: '£', price: '2.99' };
+      }
+      
+      const euTimezones = ['Europe/Paris', 'Europe/Berlin', 'Europe/Madrid', 'Europe/Rome', 'Europe/Amsterdam', 'Europe/Brussels', 'Europe/Vienna', 'Europe/Stockholm', 'Europe/Copenhagen', 'Europe/Helsinki', 'Europe/Athens', 'Europe/Lisbon', 'Europe/Dublin', 'Europe/Prague', 'Europe/Warsaw', 'Europe/Budapest'];
+      const euLocales = ['fr', 'de', 'es', 'it', 'nl', 'pt', 'pl', 'ro', 'el', 'cs', 'sv', 'da', 'fi', 'bg', 'hr', 'sk', 'lt', 'lv', 'et', 'sl', 'mt'];
+      
+      if (euTimezones.some(tz => timezone.includes(tz)) || euLocales.some(loc => locale.includes(loc))) {
+        return { currency: 'EUR', symbol: '€', price: '3.49' };
+      }
+      
+      return { currency: 'USD', symbol: '$', price: '3.99' };
+    };
+    
+    setPricing(detectCurrency());
+  }, []);
 
   const calculateDaysBetween = (date1, date2) => {
     const d1 = new Date(date1);
@@ -111,9 +133,8 @@ export default function App() {
   };
 
   const handleUpgrade = () => {
-    alert('Opening payment gateway...\n\nIn production, this will connect to Stripe for secure payment processing.\n\nPrice: $3.99 one-time payment\n\n✓ Simulating successful purchase...');
+    alert(`Opening payment gateway...\n\nIn production, this will connect to Stripe for secure payment processing.\n\nPrice: ${pricing.symbol}${pricing.price} one-time payment\n\n✓ Simulating successful purchase...`);
     
-    // Simulate successful purchase
     setIsPremium(true);
     localStorage.setItem('isPremium', 'true');
     setShowUpgradeModal(false);
@@ -486,7 +507,7 @@ export default function App() {
               onClick={() => setShowUpgradeModal(true)}
               className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-2 rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all"
             >
-              Upgrade to Premium for $3.99
+              Upgrade to Premium for {pricing.symbol}{pricing.price}
             </button>
           </div>
         )}
@@ -530,7 +551,7 @@ export default function App() {
               </div>
 
               <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
-                $3.99
+                {pricing.symbol}{pricing.price}
                 <span className="text-lg text-gray-600 font-normal ml-2">one-time</span>
               </div>
 
@@ -565,7 +586,7 @@ export default function App() {
               <p className="text-gray-700 mb-6">Upgrade to Premium for unlimited countdowns and no ads!</p>
 
               <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
-                $3.99
+                {pricing.symbol}{pricing.price}
                 <span className="text-lg text-gray-600 font-normal ml-2">one-time</span>
               </div>
 
