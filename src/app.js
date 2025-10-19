@@ -56,7 +56,6 @@ export default function App() {
         return { currency: 'USD', symbol: '$', price: '3.99' };
       }
     };
-
     setPricing(detectCurrency());
   }, []);
 
@@ -78,19 +77,16 @@ export default function App() {
 
   const handleSubmit = () => {
     if (!formData.title || !formData.date) return;
-
     if (!editingId && !isPremium && countdowns.length >= FREE_LIMIT) {
       setShowLimitModal(true);
       return;
     }
-
     if (editingId) {
       setCountdowns(countdowns.map(cd => cd.id === editingId ? { ...formData, id: editingId } : cd));
       setEditingId(null);
     } else {
       setCountdowns([...countdowns, { ...formData, id: Date.now() }]);
     }
-
     setFormData({ title: '', date: '', category: 'personal' });
     setShowAddForm(false);
   };
@@ -108,13 +104,25 @@ export default function App() {
     setCalcResult(calculateDaysBetween(calcDate1, calcDate2));
   };
 
-  const handleUpgrade = () => {
-    alert(`Payment: ${pricing.symbol}${pricing.price}\n\n✓ Simulating purchase...`);
-    setIsPremium(true);
-    localStorage.setItem('isPremium', 'true');
-    setShowUpgradeModal(false);
-    setShowLimitModal(false);
-    alert('🎉 Welcome to Premium!');
+  const handleUpgrade = async () => {
+    try {
+      const response = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currency: pricing.currency })
+      });
+
+      const data = await response.json();
+      
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Payment error. Please try again.');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      alert('Payment error. Please try again.');
+    }
   };
 
   const getCategoryStyles = (category) => {
@@ -343,7 +351,6 @@ export default function App() {
               </div>
               <h2 className="text-3xl font-bold text-gray-800 mb-2">Upgrade to Premium</h2>
               <p className="text-gray-600 mb-6">Unlock unlimited countdowns and remove all ads</p>
-
               <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 mb-6">
                 <div className="text-left space-y-3">
                   <div className="flex items-center gap-3">
@@ -364,7 +371,6 @@ export default function App() {
                   </div>
                 </div>
               </div>
-
               <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
                 {pricing.symbol}{pricing.price}<span className="text-lg text-gray-600 font-normal ml-2">one-time</span>
               </div>
@@ -386,11 +392,8 @@ export default function App() {
                 <Crown className="text-white" size={40} />
               </div>
               <h2 className="text-3xl font-bold text-gray-800 mb-2">Limit Reached</h2>
-            
               <p className="text-gray-600 mb-6">You've reached the {FREE_LIMIT} countdown limit on the free version</p>
-
               <p className="text-gray-700 mb-6">Upgrade to Premium for unlimited countdowns and no ads!</p>
-              
               <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
                 {pricing.symbol}{pricing.price}<span className="text-lg text-gray-600 font-normal ml-2">one-time</span>
               </div>
