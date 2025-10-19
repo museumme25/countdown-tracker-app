@@ -36,6 +36,17 @@ export default function App() {
     localStorage.setItem('countdowns', JSON.stringify(countdowns));
   }, [countdowns]);
 
+  // Load AdSense ads
+  useEffect(() => {
+    if (!isPremium) {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {
+        console.error('AdSense error:', e);
+      }
+    }
+  }, [isPremium, countdowns]);
+
   const calculateDaysBetween = (date1, date2) => {
     const d1 = new Date(date1);
     const d2 = new Date(date2);
@@ -177,12 +188,13 @@ export default function App() {
 
         {!isPremium && (
           <div className="mb-6 bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200">
-            <div className="text-center text-sm text-gray-600">
-              <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl p-6">
-                <p className="font-semibold text-gray-500">Advertisement Space</p>
-                <p className="text-xs text-gray-400 mt-1">728x90 Leaderboard Ad</p>
-                <p className="text-xs text-gray-400 mt-2">Replace this div with your Google AdSense code</p>
-              </div>
+            <div className="text-center">
+              <ins className="adsbygoogle"
+                   style={{display: 'block'}}
+                   data-ad-client="ca-pub-4187839765482800"
+                   data-ad-slot="2945572625"
+                   data-ad-format="auto"
+                   data-full-width-responsive="true"></ins>
             </div>
           </div>
         )}
@@ -391,11 +403,12 @@ export default function App() {
             {!isPremium && countdowns.length > 0 && (
               <div className="mt-6 bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200">
                 <div className="text-center">
-                  <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl p-6">
-                    <p className="font-semibold text-gray-500">Advertisement Space</p>
-                    <p className="text-xs text-gray-400 mt-1">300x250 Medium Rectangle Ad</p>
-                    <p className="text-xs text-gray-400 mt-2">Replace this div with your Google AdSense code</p>
-                  </div>
+                  <ins className="adsbygoogle"
+                       style={{display: 'block'}}
+                       data-ad-client="ca-pub-4187839765482800"
+                       data-ad-slot="3955401965"
+                       data-ad-format="auto"
+                       data-full-width-responsive="true"></ins>
                 </div>
               </div>
             )}
