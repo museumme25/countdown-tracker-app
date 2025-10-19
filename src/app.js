@@ -22,6 +22,14 @@ export default function App() {
     if (saved) setCountdowns(JSON.parse(saved));
     const premium = localStorage.getItem('isPremium');
     if (premium === 'true') setIsPremium(true);
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      setIsPremium(true);
+      localStorage.setItem('isPremium', 'true');
+      window.history.replaceState({}, '', '/');
+      alert('🎉 Welcome to Premium! You now have unlimited countdowns and no ads!');
+    }
   }, []);
 
   useEffect(() => {
